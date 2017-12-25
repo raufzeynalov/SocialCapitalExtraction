@@ -42,10 +42,10 @@ class AbstractRegressionModel:
         raise NotImplementedError()
 
     def save(self):
-        joblib.dump(self.model, './outputs/models/%s.bin' % self.output_prefix)
+        joblib.dump(self.model, 'outputs/models/%s.bin' % self.output_prefix)
 
     def load(self):
-        self.model = joblib.load('./outputs/models/%s.bin' % self.output_prefix)
+        self.model = joblib.load('outputs/models/%s.bin' % self.output_prefix)
 
     def run(self, do_lowess=True, r_type='raw'):
         self.fit()
@@ -85,7 +85,7 @@ class AbstractRegressionModel:
         ax.set_ylabel('Predicted')
 
         fig.tight_layout()
-        plt.savefig('./outputs/predicted-vs-actual/%s.png' % self.output_prefix, bbox_inches='tight')
+        plt.savefig('outputs/predicted-vs-actual/%s.png' % self.output_prefix, bbox_inches='tight')
         plt.gcf().clear()
         print('done\n')
 
@@ -95,7 +95,7 @@ class AbstractRegressionModel:
         residuals = self.y_train - train_prediction
         plt.figure(figsize=(8, 8))
         stats.probplot(residuals, dist='norm', plot=plt)
-        plt.savefig('./outputs/qq-plots/%s.png' % self.output_prefix, bbox_inches='tight')
+        plt.savefig('outputs/qq-plots/%s.png' % self.output_prefix, bbox_inches='tight')
         plt.gcf().clear()
         print('done\n')
 
@@ -119,7 +119,7 @@ class AbstractRegressionModel:
 
         plt.ylabel('Residuals')
         plt.xlabel('Actual')
-        plt.savefig('./outputs/residuals/%s.png' % self.output_prefix, bbox_inches='tight')
+        plt.savefig('outputs/residuals/%s.png' % self.output_prefix, bbox_inches='tight')
         plt.gcf().clear()
         print('done\n')
 
@@ -135,12 +135,12 @@ class AbstractRegressionModel:
         print('Plotting feature importances ...', end='')
         # can use specified feature names to generate fancy plots for the paper
         # feature_names = self.get_quora_feature_names()
-        # feature_names = self.get_facebook_feature_names()
-        feature_names = self.model.named_steps['prepare_features'].get_feature_names(),
+        feature_names = self.get_facebook_feature_names()
+        #feature_names = self.model.named_steps['prepare_features'].get_feature_names()
 
         df_features = pd.DataFrame({
             'feature': feature_names,
-            'importance': importances,
+            'importance': importances
         })
         df_features.sort_values(by='importance', ascending=True, inplace=True)
         plt.figure()
@@ -149,7 +149,7 @@ class AbstractRegressionModel:
         plt.xlabel('Relative Importance')
         plt.ylabel('Feature')
 
-        plt.savefig('./outputs/importance/%s.png' % self.output_prefix, bbox_inches='tight')
+        plt.savefig('outputs/importance/%s.png' % self.output_prefix, bbox_inches='tight')
         plt.gcf().clear()
         print('done\n')
 

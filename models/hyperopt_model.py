@@ -7,9 +7,14 @@ import pandas as pd
 from hyperopt import Trials, fmin, tpe, space_eval, STATUS_OK, STATUS_FAIL
 from sklearn.metrics import r2_score
 from sklearn.model_selection import KFold, cross_val_score
-
-from abstract_regression_model import AbstractRegressionModel
-import utils
+import os
+import sys
+module_path = os.path.abspath(os.path.join('..'))
+if module_path not in sys.path:
+    sys.path.append(module_path)
+    
+from models.abstract_regression_model import AbstractRegressionModel
+from models.utils import timing
 
 
 def custom_r2(estimator, X_test, y_test):
@@ -20,7 +25,7 @@ def custom_r2(estimator, X_test, y_test):
 class HyperoptModel(AbstractRegressionModel):
     """ Model to used when the hyperparameter optimization is required """
 
-    def __init__(self, train, test, output_prefix, cv=3, max_evals=50, n_jobs=1):
+    def __init__(self, train, test, output_prefix, cv=3, max_evals=1, n_jobs=1):
         super().__init__(train, test, output_prefix)
 
         self.pipeline = None

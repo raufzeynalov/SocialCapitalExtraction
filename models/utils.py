@@ -15,6 +15,36 @@ def timing(prefix=''):
     yield
     print(' '.join([prefix, 'elapsed time: %s' % format_delta(time.time() - t0)]))
 
+    
+#helper function to get all facebook features
+def get_features():
+    user_features = CustomDataFrameMapper([
+        (['user_friends_num'], None, {'alias': 'friends_num'}),
+        (['highest_education_level'], None),
+        (['education_is_present'], None),
+        (['languages_num'], None),
+        (['language_info_is_present'], None),
+    ])
+    mention_features = CustomDataFrameMapper([
+        (['unique_mention_authors_per_friend'], None),
+        (['mentions_per_friend'], None),
+    ])
+    post_features = CustomDataFrameMapper([
+        (['user_friends_per_post'], None, {'alias': 'friends_per_post'}),
+        (['user_media_to_all_normal_ratio'], None, {'alias': 'media_to_all_normal_ratio'}),
+        (['user_normal_posts_num'], None, {'alias': 'normal_posts_num'}),
+        (['user_life_events_num'], None, {'alias': 'life_events_num'}),
+        (['user_small_posts_num'], None, {'alias': 'small_posts_num'}),
+        (['avg_normal_post_length'], None, {'alias': 'normal_post_avg_length'}),
+    ])
+    comment_features = CustomDataFrameMapper([
+        (['user_comments_num'], None, {'alias': 'comments_num'}),
+        (['avg_comment_length'], None, {'alias': 'comment_avg_length'}),
+        (['user_likes_per_comment'], None, {'alias': 'likes_per_user_comment'}),
+        (['comments_on_own_posts_num'], None),
+        (['comments_on_own_life_events_num'], None),
+    ])
+    return comment_features, mention_features, post_features, user_features
 
 class ListTransformer(BaseEstimator, TransformerMixin):
     def __init__(self):
