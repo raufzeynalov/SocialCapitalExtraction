@@ -7,6 +7,10 @@ import psycopg2.extras
 from IPython.core.magics.execution import _format_time as format_delta
 from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn_pandas import DataFrameMapper
+from sklearn.preprocessing import StandardScaler, FunctionTransformer
+from .url_and_media_text_preprocessing import UrlAndMediaTextBooleanExtractor, UrlAndMediaTextStripper
+from .text_preprocessing import LengthInWordsTransformer
+from .subjectivity_modeller import SubjectivityClassifier
 
 
 @contextmanager
@@ -15,7 +19,8 @@ def timing(prefix=''):
     yield
     print(' '.join([prefix, 'elapsed time: %s' % format_delta(time.time() - t0)]))
 
-    
+
+n_topics = 20
 #helper function to get all facebook features
 def get_features():
     user_features = CustomDataFrameMapper([
@@ -45,6 +50,106 @@ def get_features():
         (['comments_on_own_life_events_num'], None),
     ])
     return comment_features, mention_features, post_features, user_features
+
+def get_svr_features():
+    user_features = CustomDataFrameMapper([
+        (['user_friends_num'], [StandardScaler()], {'alias': 'friends_num'}),
+        (['highest_education_level'], [StandardScaler()]),
+        (['education_is_present'], None),
+        (['languages_num'], [StandardScaler()]),
+        (['language_info_is_present'], None),
+    ])
+    mention_features = CustomDataFrameMapper([
+        (['unique_mention_authors_per_friend'], [StandardScaler()]),
+        (['mentions_per_friend'], [StandardScaler()]),
+    ])
+    post_features = CustomDataFrameMapper([
+        (['user_friends_per_post'], [StandardScaler()], {'alias': 'friends_per_post'}),
+        (['user_media_to_all_normal_ratio'], [StandardScaler()], {'alias': 'media_to_all_normal_ratio'}),
+        (['user_normal_posts_num'], [StandardScaler()], {'alias': 'normal_posts_num'}),
+        (['user_life_events_num'], [StandardScaler()], {'alias': 'life_events_num'}),
+        (['user_small_posts_num'], [StandardScaler()], {'alias': 'small_posts_num'}),
+        (['avg_normal_post_length'], [StandardScaler()], {'alias': 'normal_post_avg_length'}),
+    ])
+    comment_features = CustomDataFrameMapper([
+        (['user_comments_num'], [StandardScaler()], {'alias': 'comments_num'}),
+        (['avg_comment_length'], [StandardScaler()], {'alias': 'comment_avg_length'}),
+        (['user_likes_per_comment'], [StandardScaler()], {'alias': 'likes_per_user_comment'}),
+        (['comments_on_own_posts_num'], [StandardScaler()]),
+        (['comments_on_own_life_events_num'], [StandardScaler()]),
+    ])
+
+    return comment_features, mention_features, post_features, user_features
+
+def _tree_features_transformations():
+   
+    user_features_transformations = [
+                                        (['user_answers_num'], None),
+                                        (['user_questions_num'], None),
+                                        (['user_edits_num'], None),
+                                        (['user_topics_num'], None),
+                                        (['user_followers_num'], None),
+                                        (['user_followings_num'], None),
+                                        (['user_ff_ratio'], None),
+                                        (['user_z_score'], None),
+                                        (['user_top_score_ratio'], None),
+                                    ] + [
+                                        (['user_topic_presense_%d' % i], None) for i in range(1, n_topics + 1)
+                                    ] + [
+                                        (['user_%s_presense' % tag], None) for tag in ['obj', 'subj']
+                                    ]
+    question_features_transformations = [
+                                            (['question_fetched_answers_num'], None),
+                                            (['question_subjectivity'], None),
+                                        ] + [
+                                            (['lda_%d' % i], None) for i in range(1, n_topics + 1)
+                                        ]
+    # noinspection PyTypeChecker
+    answer_features_transformations = [
+        ('answer_content', [UrlAndMediaTextStripper(), LengthInWordsTransformer()], {'alias': 'answer_content_length'}),
+        ('answer_content', UrlAndMediaTextBooleanExtractor()),
+        ('answer_smog_index', None)
+    ]
+    time_features_transformations = [
+        (['days_rescaled'], None)
+    ]
+    return answer_features_transformations, question_features_transformations, time_features_transformations, user_features_transformations
+
+def _svr_features_transformations():
+    log_transformer = FunctionTransformer(func=np.log1p)
+    user_features_transformations = [
+        (['user_answers_num'], [log_transformer, StandardScaler()]),
+        (['user_questions_num'], [log_transformer, StandardScaler()]),
+        (['user_edits_num'], [log_transformer, StandardScaler()]),
+        (['user_topics_num'], [log_transformer, StandardScaler()]),
+        (['user_followers_num'], [log_transformer, StandardScaler()]),
+        (['user_followings_num'], [log_transformer, StandardScaler()]),
+        (['user_ff_ratio'], [log_transformer, StandardScaler()]),
+        (['user_z_score'], StandardScaler()),
+        (['user_top_score_ratio'], StandardScaler()),
+        ] + [
+            (['user_topic_presense_%d' % i], StandardScaler()) for i in range(1, n_topics + 1)
+        ] + [
+            (['user_%s_presense' % tag], StandardScaler()) for tag in ['obj', 'subj']
+    ]
+    question_features_transformations = [
+        (['question_fetched_answers_num'], [log_transformer, StandardScaler()]),
+        ('question_title', [SubjectivityClassifier('./data/subjectivity/subj.clf'),
+                            StandardScaler()], {'alias': 'question_subjectivity'})
+        ] + [
+            (['lda_%d' % i], StandardScaler()) for i in range(1, n_topics + 1)
+    ]
+    answer_features_transformations = [
+        ('answer_content', [UrlAndMediaTextStripper(), LengthInWordsTransformer(), log_transformer, StandardScaler()], {'alias': 'answer_content_length'}),
+        ('answer_content', UrlAndMediaTextBooleanExtractor()),
+        (['answer_smog_index'], StandardScaler())
+    ]
+    time_features_transformations = [
+        (['days_rescaled'], StandardScaler())
+    ]
+    return answer_features_transformations, question_features_transformations, \
+           time_features_transformations, user_features_transformations
+
 
 class ListTransformer(BaseEstimator, TransformerMixin):
     def __init__(self):

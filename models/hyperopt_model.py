@@ -25,7 +25,7 @@ def custom_r2(estimator, X_test, y_test):
 class HyperoptModel(AbstractRegressionModel):
     """ Model to used when the hyperparameter optimization is required """
 
-    def __init__(self, train, test, output_prefix, cv=3, max_evals=1, n_jobs=1):
+    def __init__(self, train, test, output_prefix, cv=3, max_evals=50, n_jobs=1):
         super().__init__(train, test, output_prefix)
 
         self.pipeline = None
@@ -82,6 +82,7 @@ class HyperoptModel(AbstractRegressionModel):
         try:
             self.plot_predicted_vs_actual(do_lowess=do_lowess, alpha=alpha)
             self.plot_feature_importance()
+            #self.qq_plot()
         except Exception:
             print('Could not create plots')
 
