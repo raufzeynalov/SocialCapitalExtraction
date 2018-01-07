@@ -80,8 +80,8 @@ class HyperoptModel(AbstractRegressionModel):
         self.best_parameters()
 
         try:
-            self.plot_predicted_vs_actual(do_lowess=do_lowess, alpha=alpha)
             self.plot_feature_importance()
+            self.plot_predicted_vs_actual(do_lowess=do_lowess, alpha=alpha)
             #self.qq_plot()
         except Exception:
             print('Could not create plots')

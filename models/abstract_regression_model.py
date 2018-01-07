@@ -52,7 +52,7 @@ class AbstractRegressionModel:
         self.stats()
         self.qq_plot()
         self.plot_predicted_vs_actual(do_lowess=do_lowess)
-        # self.plot_residuals(do_lowess=False, r_type=r_type)
+        self.plot_residuals(do_lowess=False, r_type=r_type)
         self.plot_feature_importance()
         self.save()
 

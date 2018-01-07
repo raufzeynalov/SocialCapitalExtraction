@@ -1,0 +1,87 @@
+feat_norm_list = [
+    {
+        'feat_norm': 'MaxAbsScaler'
+    },
+    {
+        'feat_norm': 'StandardScaler',
+        'with_mean': False,
+        'with_std': hp.choice('with_std', [True, False])
+    }
+]
+
+feat_norm = hp.choice('feat_norm', feat_norm_list)
+
+feat_pre_list = [
+    {'feat_pre': 'RBFSampler',
+        'gamma': hp.uniform('gamma', 0.3, 2),  # default: 1.0
+        'n_components': scope.int(hp.loguniform('n_components', log(50), log(10000)))},  # default: log(100)
+
+    {'feat_pre': 'RandomTreesEmbedding',
+        'n_estimators': scope.int(hp.uniform('n_estimators', 10, 100)),  # default: 10
+        'max_depth': scope.int(hp.uniform('max_depth', 2, 10)),  # default: 5
+        'min_samples_split': scope.int(hp.uniform('min_samples_split', 2, 20)),  # default: 2
+        'min_samples_leaf': scope.int(hp.uniform('min_samples_leaf', 1, 20))},  # default: 1
+]
+
+feat_pre = hp.choice('feat_pre', feat_pre_list)
+
+
+regression_list = [ #making a list of the regression models imported and to be used 
+    {'regression': 'LinearRegression',
+        'fit_intercept' : hp.choice('fit_intercept', [True, False]),
+        'normalize' : hp.choice('normalize' ,[True, False]),
+        'n_jobs' : scope.int(hp.uniform('n_jobs', 1,2))
+        },
+
+    {'regression': 'Ridge',
+        'alpha' : hp.uniform('alpha', 1, 2),
+        'fit_intercept' : hp.choice('fit_intercept', [True, False]),
+        'normalize' : hp.choice('normalize' ,[True, False]),
+        'max_iter' : scope.int(hp.uniform('max_iter', 500, 2000)),
+        'tol' : hp.uniform('tol',0.001,0.005),
+        'solver' : hp.choice('solver', ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag'])
+        },
+
+    {'regression': 'Lasso',
+        'alpha' : hp.uniform('alpha', 1, 2),
+        'fit_intercept' : hp.choice('fit_intercept', [True, False]),
+        'normalize' : hp.choice('normalize' ,[True, False]),
+        'max_iter' : scope.int(hp.uniform('max_iter', 500, 2000)),
+        'tol' : hp.uniform('tol',0.0001,0.0005)
+        },
+
+    {'regression': 'SGDRegressor',
+        'loss' : hp.choice('loss', ['squared_loss', 'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive']),
+        'penalty' : hp.choice('penalty', ['l1','l2']),
+        'fit_intercept' : hp.choice('fit_intercept', [True, False]),
+        'n_iter' : scope.int(hp.uniform('n_iter', 5, 10)),
+        'power_t' : hp.uniform('power_t', 0.20, 0.30)
+        },
+
+    {'regression': 'KNeighborsRegressor',
+        'algorithm' : hp.choice('algorithm', ['auto', 'ball_tree', 'kd_tree', 'brute']),
+        'n_neighbors' : scope.int(hp.uniform('n_neighbors', 3, 10)),
+        'leaf_size' : scope.int(hp.uniform('leaf_size', 30, 50)),
+        'n_jobs' : scope.int(hp.uniform('n_jobs', 1,2))
+        },
+
+    {'regression': 'DecisionTreeRegressor',
+        'criterion' : hp.choice('criterion', ['mse', 'mae']),
+        'min_samples_split' : scope.int(hp.uniform('min_samples_split', 1, 50)),
+        'min_samples_leaf' : scope.int(hp.uniform('min_samples_leaf', 1, 50)),
+        'max_leaf_nodes' : scope.int(hp.uniform('max_leaf_nodes', 2, 50)),
+        'max_depth' : scope.int(hp.uniform('max_depth', 1, 100)),
+        }]
+
+    # {'regression': 'MLPRegressor',
+    #     'alpha' : hp.uniform('alpha', 0.01, 0.02),
+    #     'activation' : hp.choice('activation', ['identity', 'logistic', 'tanh', 'relu']),
+    #     'learning_rate' : hp.choice('learning_rate', ['constant', 'invscaling', 'adaptive']),
+    #     'hidden_layer_sizes' : scope.int(hp.uniform('hidden_layer_sizes', 1, 100)),
+    #     'solver' : hp.choice('solver', ['lbfgs', 'sgd', 'adam']),
+    #     'max_iter' : scope.int(hp.uniform('max_iter', 500, 1000))
+    #     }]
+
+regression = hp.choice('regression', regression_list)
+
+space= [('feat_norm', feat_norm), ('feat_pre', feat_pre), ('regression', regression)]
