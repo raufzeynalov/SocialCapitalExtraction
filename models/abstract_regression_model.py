@@ -9,6 +9,7 @@ import scipy.stats as stats
 import statsmodels.api as sm
 from sklearn.externals import joblib
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from scipy.stats import pearsonr,  spearmanr,  kendalltau
 
 import seaborn as sns
 sns.set_style("whitegrid")
@@ -67,6 +68,12 @@ class AbstractRegressionModel:
                                                      mean_squared_error(self.y_test, self.test_prediction) ** 0.5))
         print('\tMean error:\t\t%.4f\n\t\t\t\t\t%.4f' % (mean_absolute_error(self.y_train, self.train_prediction),
                                                          mean_absolute_error(self.y_test, self.test_prediction)))
+        print('\tPearson:\t\t%.4f\n\t\t\t\t\t%.4f' % (pearsonr(self.y_train, self.train_prediction)[0],
+                                                         pearsonr(self.y_test, self.test_prediction)[0]))
+        print('\tSpearman:\t\t%.4f\n\t\t\t\t\t%.4f' % (spearmanr(self.y_train, self.train_prediction)[0],
+                                                         spearmanr(self.y_test, self.test_prediction)[0]))
+        print('\tKendallTau:\t\t%.4f\n\t\t\t\t\t%.4f' % (kendalltau(self.y_train, self.train_prediction)[0],
+                                                         kendalltau(self.y_test, self.test_prediction)[0]))
         print()
 
     def plot_predicted_vs_actual(self, do_lowess=True, alpha=0.4):
