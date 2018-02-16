@@ -115,6 +115,36 @@ def _tree_features_transformations():
     ]
     return answer_features_transformations, question_features_transformations, time_features_transformations, user_features_transformations
 
+
+def get_general_features_quora(): 
+     
+    user_features_transformations = [
+                                        (['user_answers_num'], None),
+                                        (['user_questions_num'], None),
+                                        (['user_edits_num'], None),
+                                        (['user_topics_num'], None),
+                                        (['user_posts_num'], None),
+                                        (['user_followers_num'], None),
+                                        (['user_followings_num'], None),
+                                        (['user_ff_ratio'], None),
+                                        (['user_z_score'], None),
+                                        (['user_top_score_ratio'], None),
+                                    ]
+    question_features_transformations = [
+                                            (['question_fetched_answers_num'], None), 
+                                            (['question_followers_num'], None),
+                                            (['question_comments_num'], None)
+        
+                                        ] 
+    # noinspection PyTypeChecker
+    answer_features_transformations = [
+        ('answer_content', UrlAndMediaTextBooleanExtractor()),
+        ('answer_comments_num', None),
+        ('answer_smog_index', None),
+        ('answer_rank_ratio',None)
+    ]
+    return answer_features_transformations, question_features_transformations, user_features_transformations
+
 def _svr_features_transformations():
     log_transformer = FunctionTransformer(func=np.log1p)
     user_features_transformations = [
