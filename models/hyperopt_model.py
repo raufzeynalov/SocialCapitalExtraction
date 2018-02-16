@@ -92,23 +92,24 @@ class HyperoptModel(AbstractRegressionModel):
     def fit(self):
         print("Performing parameters optimization...")
         with timing():
-            
-            self.trials = pickle.load(open(self.output_prefix+".pkl", "rb"))
-            print("Found saved Trials! Loading...")
-            count=0;
-            for index,x in enumerate(self.trials.losses()):
-                print(x)
-                if x is not None:
-                    count+=1
-             
-            print(count)
-            self.max_evals = count + self.max_evals        
-            self.hyperopt_eval_num = count  
-            for index in range(0, count):
-                print('[{0}/{1}]\tcv_eval_time={2:.2f} sec\tRMSE={3:.6f}\tR^2={4:.6f}'.format(
-            index+1, self.max_evals, self.trials.results[index].get('cv_eval_time'),self.trials.losses()[index], self.trials.results[index].get('r2')))
+            try:
+                self.trials = pickle.load(open(self.output_prefix+".pkl", "rb"))
+                print("Found saved Trials! Loading...")
+                count=0;
+                for index,x in enumerate(self.trials.losses()):
+                    print(x)
+                    if x is not None:
+                        count+=1
+                self.max_evals = count + self.max_evals        
+                self.hyperopt_eval_num = count  
+                for index in range(0, count):
+                    print('[{0}/{1}]\tcv_eval_time={2:.2f} sec\tRMSE={3:.6f}\tR^2={4:.6f}'.format(
+                index+1, self.max_evals, self.trials.results[index].get('cv_eval_time'),self.trials.losses()[index], self.trials.results[index].get('r2')))
                 
-            print("Rerunning from {} trials to add another one.".format(count))  
+                print("Rerunning from {} trials to add another one.".format(count))  
+            except: 
+                self.trials = Trials()
+                print("Starting from scratch: new trials.")
             self.best_ = fmin(self.objective, self.space, algo=tpe.suggest,
                               max_evals=self.max_evals, trials=self.trials, verbose=True)
 
