@@ -24,7 +24,7 @@ n_topics = 20
 #helper function to get all facebook features qualitative ground truth
 def get_features_facebook_qualitative():
     user_features = CustomDataFrameMapper([
-        (['user_friends_num'], None, {'alias': 'C1: friends_num'}),
+        (['user_friends_num'], None, {'alias': 'friends_num'}),
         (['highest_education_level'], None),
         (['education_is_present'], None),
         (['languages_num'], None),
@@ -168,7 +168,7 @@ def get_features_scientometrics_qualitative():
         (['THE_SCORE'], None, {'alias': 'the_score'}),
         (['TOP_SIM_CORPUS'], None, {'alias': 'topic_sim_corpus'}),
         (['TOP_SIM_UNIFORM'], None, {'alias': 'topic_sim_uniform'}),
-        (['TOP SIM PAPERS'], None, {'alias': 'topic_sim_papers'}),
+        (['TOP_SIM_PAPERS'], None, {'alias': 'topic_sim_papers'}),
         (['NUM_TOPICS_GREATER_CORPUS'], None, {'alias': 'num_topics_greater_corpus'}),
         (['NUM_TOPICS_GREATER_UNIFORM'], None, {'alias': 'num_topics_greater_uniform'})
     ])
@@ -177,11 +177,11 @@ def get_features_scientometrics_qualitative():
         #(['PAPER_COUNT'], None, {'alias': 'num_publication'}),
         (['NUM_FIRST_POS'], None, {'alias': 'num_first_pos'}),
         (['NUM_SECOND_POS'], None, {'alias': 'num_second_pos'}),
-        (['NUM_THIRD_POS'], None, {'alias': 'num_third_pos'}),
-        (['NUM_HIGHER_POS'], None, {'alias': 'num_higher_pos'}),
+        #(['NUM_THIRD_POS'], None, {'alias': 'num_third_pos'}),
+        #(['NUM_HIGHER_POS'], None, {'alias': 'num_higher_pos'}),
         (['NUM_YEARS_SINCE_FIRST_PUBLICATION'], None, {'alias': 'num_years_since_first_publication'}),
         (['NUM_YEARS_BETWEEN_FIRST_AND_LAST_PUBLICATION'], None, {'alias': 'years_between_first_and_last_pub'}),
-        (['AVG_NUM_PUBLICATIONS_PER_YEAR'], None, {'alias': 'avg_num_publication_per_year'}),
+        #(['AVG_NUM_PUBLICATIONS_PER_YEAR'], None, {'alias': 'avg_num_publication_per_year'}),
         (['AVG_TITLE_LENGTH'], None, {'alias': 'avg_title_length'}),
         (['AVG_ABSTRACT_LENGTH'], None, {'alias': 'avg_abstract_length'}),
         (['CIT_OUTDEGREE_UNWEIGHTED'], None, {'alias': 'num_author_referenced_by'}),
@@ -210,7 +210,7 @@ def get_features_scientometrics_quantitative():
         (['THE_SCORE'], None, {'alias': 'the_score'}),
         (['TOP_SIM_CORPUS'], None, {'alias': 'topic_sim_corpus'}),
         (['TOP_SIM_UNIFORM'], None, {'alias': 'topic_sim_uniform'}),
-        (['TOP SIM PAPERS'], None, {'alias': 'topic_sim_papers'}),
+        (['TOP_SIM_PAPERS'], None, {'alias': 'topic_sim_papers'}),
         (['NUM_TOPICS_GREATER_CORPUS'], None, {'alias': 'num_topics_greater_corpus'}),
         (['NUM_TOPICS_GREATER_UNIFORM'], None, {'alias': 'num_topics_greater_uniform'})
     ])
@@ -240,11 +240,11 @@ def get_features_scientometrics_quantitative():
 
 #helper function to get all quora features for qualitative ground truth
 def get_features_quora_qualitative(): 
-     
+    log_transformer = FunctionTransformer(func=np.log1p)
     user_features = CustomDataFrameMapper([
         (['user_topics_num'], None, {'alias': 'user_topics_num'}),
         (['user_ff_ratio'], None, {'alias': 'user_ff_ratio'}),
-        (['user_z_score'], None, {'alias': 'user_z_score'}),
+        #(['user_z_score'], None, {'alias': 'user_z_score'}),
         (['user_top_score_ratio'], None, {'alias': 'user_top_score_ratio'}),
         (['days_rescaled'], None, {'alias': 'days_rescaled'})
     ])
@@ -255,8 +255,8 @@ def get_features_quora_qualitative():
         (['user_edits_num'], None, {'alias': 'user_edits_num'}),
         (['user_followings_num'], None, {'alias': 'user_followings_num'}),
         (['question_fetched_answers_num'], None, {'alias': 'question_fetched_answers_num'}),
-        (['answer_content'], [UrlAndMediaTextStripper(), LengthInWordsTransformer()], {'alias': 'answer_content_length'}),
-        (['answer_content'], [UrlAndMediaTextBooleanExtractor()], {'alias': 'answer_content_url_presense'}),
+        ('answer_content', [UrlAndMediaTextStripper(), LengthInWordsTransformer(),log_transformer, StandardScaler() ], {'alias': 'answer_content_length'}),
+        ('answer_content', [UrlAndMediaTextBooleanExtractor()], {'alias': 'answer_content_url_presense'}),
         (['answer_smog_index'], None, {'alias': 'answer_smog_index'}),
         (['question_subjectivity'], None, {'alias': 'question_subjectivity'})
     ])
@@ -270,11 +270,12 @@ def get_features_quora_qualitative():
 
 #helper function to get all quora features for quantitative ground truth
 def get_features_quora_quantitative(): 
-     
+    
+    log_transformer = FunctionTransformer(func=np.log1p) 
     user_features = CustomDataFrameMapper([
         (['user_topics_num'], None, {'alias': 'user_topics_num'}),
         (['user_ff_ratio'], None, {'alias': 'user_ff_ratio'}),
-        (['user_z_score'], None, {'alias': 'user_z_score'}),
+        #(['user_z_score'], None, {'alias': 'user_z_score'}),
         (['user_top_score_ratio'], None, {'alias': 'user_top_score_ratio'}),
         (['days_rescaled'], None, {'alias': 'days_rescaled'})
     ])
@@ -285,8 +286,8 @@ def get_features_quora_quantitative():
         (['user_edits_num'], None, {'alias': 'user_edits_num'}),
         (['user_followings_num'], None, {'alias': 'user_followings_num'}),
         (['question_fetched_answers_num'], None, {'alias': 'question_fetched_answers_num'}),
-        (['answer_content'], [UrlAndMediaTextStripper(), LengthInWordsTransformer()], {'alias': 'answer_content_length'}),
-        (['answer_content'], [UrlAndMediaTextBooleanExtractor()], {'alias': 'answer_content_url_presense'}),
+        ('answer_content', [UrlAndMediaTextStripper(), LengthInWordsTransformer(), log_transformer, StandardScaler()], {'alias': 'answer_content_length'}),
+        ('answer_content', [UrlAndMediaTextBooleanExtractor()], {'alias': 'answer_content_url_presense'}),
         (['answer_smog_index'], None, {'alias': 'answer_smog_index'}),
         (['question_subjectivity'], None, {'alias': 'question_subjectivity'})
     ])
